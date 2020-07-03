@@ -11,9 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Extensions.Logging;
 
 namespace Hanfire.Api
 {
@@ -56,25 +53,11 @@ namespace Hanfire.Api
             });
 
             var services = app.ApplicationServices;
-            
-
-            #region NLOG
-
-            LogManager.LoadConfiguration("NLog.Config");
-
-            services.GetService<ILoggerFactory>().AddNLog();
-
-            #endregion
 
             //强制显示中文
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh-CN");
 
-            //强制显示英文
-            //System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("");
-
-
             app.ConfigureHangfire();
-
 
             app.Run(async context => { await context.Response.WriteAsync("Hello World!"); });
 
