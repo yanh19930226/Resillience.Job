@@ -28,6 +28,7 @@
     }
   },
   "HttpJobOptions": {
+    "RecurringJobTimeZone": "Asia/Shanghai",
     "DefaultTimeZone": "Asia/Shanghai",
     "DashboardFooter": "Hangfire",
     //"CurrentDomain": "http://localhost:5773",
