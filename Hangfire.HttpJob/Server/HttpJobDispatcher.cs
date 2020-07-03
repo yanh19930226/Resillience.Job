@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Hangfire.Common;
 using Hangfire.HttpJob.Support;
 using Hangfire.States;
-
+using TimeZoneConverter;
 
 namespace Hangfire.HttpJob.Server
 {
@@ -780,12 +780,12 @@ namespace Hangfire.HttpJob.Server
                 {
                     //支持添加一个 只能手动出发的
                     RecurringJob.AddOrUpdate(jobItem.JobName, () => HttpJob.Excute(jobItem, jobItem.JobName, queueName, jobItem.EnableRetry, null), Cron.Never,
-                        timeZone, jobItem.QueueName.ToLower());
+                        TZConvert.GetTimeZoneInfo("Asia/Shanghai"), jobItem.QueueName.ToLower());
                     return true;
                 }
 
                 RecurringJob.AddOrUpdate(jobItem.JobName, () => HttpJob.Excute(jobItem, jobItem.JobName, queueName, jobItem.EnableRetry, null), jobItem.Cron,
-                    timeZone, jobItem.QueueName.ToLower());
+                    TZConvert.GetTimeZoneInfo("Asia/Shanghai"), jobItem.QueueName.ToLower());
                 return true;
             }
             catch (Exception ex)
