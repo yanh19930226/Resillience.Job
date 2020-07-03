@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Hangfire.Common;
 using Hangfire.HttpJob.Support;
 using Hangfire.States;
-using TimeZoneConverter;
+
 
 namespace Hangfire.HttpJob.Server
 {
@@ -178,7 +178,6 @@ namespace Hangfire.HttpJob.Server
                 await context.Response.WriteAsync("err:" + e.Message);
             }
         }
-
         /// <summary>
         /// 获取全局配置
         /// </summary>
@@ -732,7 +731,6 @@ namespace Hangfire.HttpJob.Server
                 return;
             }
         }
-
         /// <summary>
         /// 添加周期性作业
         /// </summary>
@@ -757,17 +755,13 @@ namespace Hangfire.HttpJob.Server
                     Logger.Warn($"HttpJobDispatcher.AddHttprecurringjob Error => HttpJobItem.QueueName：`{jobItem.QueueName}` not exist, Use DEFAULT extend!");
                 }
             }
-
             var queueName = !string.IsNullOrEmpty(jobItem.AgentClass) ? "JobAgent" : jobItem.QueueName;
             if (string.IsNullOrEmpty(queueName))
             {
                 queueName = EnqueuedState.DefaultQueue;
             }
-
-
             try
             {
-
                 // 先用每个job配置的 如果没有就用系统配置的 在没有就用Local
                 TimeZoneInfo timeZone = null;
                 if (!string.IsNullOrEmpty(jobItem.TimeZone))
@@ -780,12 +774,12 @@ namespace Hangfire.HttpJob.Server
                 {
                     //支持添加一个 只能手动出发的
                     RecurringJob.AddOrUpdate(jobItem.JobName, () => HttpJob.Excute(jobItem, jobItem.JobName, queueName, jobItem.EnableRetry, null), Cron.Never,
-                        TZConvert.GetTimeZoneInfo("Asia/Shanghai"), jobItem.QueueName.ToLower());
+                        timeZone, jobItem.QueueName.ToLower());
                     return true;
                 }
 
                 RecurringJob.AddOrUpdate(jobItem.JobName, () => HttpJob.Excute(jobItem, jobItem.JobName, queueName, jobItem.EnableRetry, null), jobItem.Cron,
-                    TZConvert.GetTimeZoneInfo("Asia/Shanghai"), jobItem.QueueName.ToLower());
+                    timeZone, jobItem.QueueName.ToLower());
                 return true;
             }
             catch (Exception ex)
@@ -794,7 +788,6 @@ namespace Hangfire.HttpJob.Server
                 return false;
             }
         }
-
         /// <summary>
         /// 获取job任务
         /// </summary>
@@ -826,10 +819,8 @@ namespace Hangfire.HttpJob.Server
             {
                 Logger.ErrorException("HttpJobDispatcher.GetJobdata", ex);
             }
-
             return "";
         }
-
         /// <summary>
         /// 获取jobAgent类型的JobInfo
         /// </summary>
@@ -842,7 +833,6 @@ namespace Hangfire.HttpJob.Server
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             await context.Response.WriteAsync(JsonConvert.SerializeObject(jobDetail));
         }
-
         /// <summary>
         /// 获取jobAgent类型的JobInfo
         /// </summary>
@@ -887,7 +877,6 @@ namespace Hangfire.HttpJob.Server
 
                         job = InvocationData.DeserializePayload(jobDetail).DeserializeJob();
                     }
-
                     var jobItem2 = job.Args.FirstOrDefault();
                     var httpJobItem = jobItem2 as HttpJobItem;
                     if (httpJobItem == null)
@@ -909,7 +898,6 @@ namespace Hangfire.HttpJob.Server
                         result.Info = $"{(!string.IsNullOrEmpty(jobName) ? "【" + jobName + "】" : string.Empty)} Error：get null info! ";
                         return result;
                     }
-
                     jobInfo = jobInfo.Replace("\r\n", "<br/>");
                     result.Info = jobInfo;
                     return result;
@@ -922,8 +910,6 @@ namespace Hangfire.HttpJob.Server
                 return result;
             }
         }
-
-
         /// <summary>
         /// 导出所有的任务
         /// </summary>
@@ -944,7 +930,6 @@ namespace Hangfire.HttpJob.Server
                 await context.Response.WriteAsync("err:" + e.Message);
             }
         }
-
         /// <summary>
         /// 导入所有的任务
         /// </summary>
@@ -969,7 +954,6 @@ namespace Hangfire.HttpJob.Server
                 await context.Response.WriteAsync("err:" + e.Message);
             }
         }
-
         /// <summary>
         /// 序列化jsonstring
         /// </summary>
@@ -1006,8 +990,6 @@ namespace Hangfire.HttpJob.Server
                 return string.Empty;
             }
         }
-
-
         List<RecurringJobDto> GetAllRecurringJobs()
         {
             var jobList = new List<RecurringJobDto>();
@@ -1025,7 +1007,6 @@ namespace Hangfire.HttpJob.Server
             }
             return jobList;
         }
-
         string GetRequestBody(DashboardContext context)
         {
             using (var reader = new StreamReader(context.GetHttpContext().Request.Body))
